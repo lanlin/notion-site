@@ -18,7 +18,7 @@ import (
 
 //go:embed templates
 var mdTemplatesFS embed.FS
-var images map[string]string
+var TMP_IMAGES map[string]string
 
 var (
 	extendedSyntaxBlocks            = []any{reflect.TypeOf(&notion.CalloutBlock{})}
@@ -337,11 +337,14 @@ func (tm *ToMarkdown) downloadFrontMatterImage(url string) string {
 		return ""
 	}
 
-	if imgUrl, ok := images[url]; ok {
+	if TMP_IMAGES == nil {
+		TMP_IMAGES = make(map[string]string)
+	}
+	if imgUrl, ok := TMP_IMAGES[url]; ok {
 		return imgUrl
 	}
 
-	images[url] = image.External.URL
+	TMP_IMAGES[url] = image.External.URL
 	return image.External.URL
 }
 
