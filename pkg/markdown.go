@@ -18,6 +18,7 @@ import (
 
 //go:embed templates
 var mdTemplatesFS embed.FS
+var images map[string]string
 
 var (
 	extendedSyntaxBlocks            = []any{reflect.TypeOf(&notion.CalloutBlock{})}
@@ -118,7 +119,7 @@ func (tm *ToMarkdown) WithFrontMatter(page notion.Page, users map[string]notion.
 
 	if val, ok := users[page.LastEditedBy.ID]; ok {
 		tm.FrontMatter["Author"] = val.Name
-		tm.FrontMatter["Avatar"] = val.AvatarURL
+		tm.injectAuthorAvatar(val.AvatarURL)
 	}
 }
 
@@ -325,7 +326,6 @@ func (tm *ToMarkdown) GenBlock(bType string, block MdBlock, addMoreTag bool, ski
 }
 
 func (tm *ToMarkdown) downloadFrontMatterImage(url string) string {
-
 	image := &notion.FileBlock{
 		Type: "external",
 		File: nil,
@@ -337,6 +337,11 @@ func (tm *ToMarkdown) downloadFrontMatterImage(url string) string {
 		return ""
 	}
 
+	if imgUrl, ok := images[url]; ok {
+		return imgUrl
+	}
+
+	images[url] = image.External.URL
 	return image.External.URL
 }
 
