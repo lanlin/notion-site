@@ -66,6 +66,13 @@ func (api *NotionAPI) FindBlockChildrenCommentLoop(client *notion.Client, blockA
 	return blocks, nil
 }
 
+func (api *NotionAPI) queryUser(client *notion.Client, id string) (notion.User, error) {
+	spin.Suffix = " Querying Notion user info..."
+	spin.Start()
+	defer spin.Stop()
+	return client.FindUserByID(context.Background(), id)
+}
+
 func (api *NotionAPI) queryDatabase(client *notion.Client, config Notion, id string) (notion.DatabaseQueryResponse, error) {
 	spin.Suffix = " Querying Notion database..."
 	spin.Start()

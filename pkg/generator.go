@@ -84,7 +84,7 @@ func convertFolderPath(fms []*FrontMatter) ([]*FrontMatter, error) {
 	return fms, nil
 }
 
-func generate(ns *NotionSite, page notion.Page, blocks []notion.Block) (*FrontMatter, error) {
+func generate(ns *NotionSite, page notion.Page, blocks []notion.Block, users map[string]notion.User) (*FrontMatter, error) {
 	// Generate markdown content to the file
 	initNotionSite(ns, page, blocks)
 
@@ -105,7 +105,7 @@ func generate(ns *NotionSite, page notion.Page, blocks []notion.Block) (*FrontMa
 
 	if !ns.currentPageProp.IsSetting() {
 		ns.tm.ContentTemplate = ns.config.Template
-		ns.tm.WithFrontMatter(ns.currentPage)
+		ns.tm.WithFrontMatter(ns.currentPage, users)
 	}
 	var err error
 	// save current io
@@ -139,8 +139,22 @@ func initNotionSite(ns *NotionSite, page notion.Page, blocks []notion.Block) {
 	ns.currentBlocks = blocks
 }
 
+func concatUsers(users map[string]notion.User, page notion.Page, ns *NotionSite) map[string]notion.User {
+	if _, ok := users[page.CreatedBy.ID]; !ok {
+		user, _ := ns.api.queryUser(ns.api.Client, page.CreatedBy.ID)
+		users[page.CreatedBy.ID] = user
+	}
+	if _, ok := users[page.LastEditedBy.ID]; !ok {
+		user, _ := ns.api.queryUser(ns.api.Client, page.LastEditedBy.ID)
+		users[page.LastEditedBy.ID] = user
+	}
+	return users
+}
+
 func processDatabase(ns *NotionSite, id string) ([]*FrontMatter, error) {
 	var fms []*FrontMatter
+	users := make(map[string]notion.User)
+
 	q, err := ns.api.queryDatabase(ns.api.Client, ns.config.Notion, id)
 	if err != nil {
 		return fms, fmt.Errorf("❌ Querying Notion database: %s", err)
@@ -158,8 +172,11 @@ func processDatabase(ns *NotionSite, id string) ([]*FrontMatter, error) {
 		}
 		fmt.Println("✔ Getting blocks tree: Completed")
 
+		// get extra user infos
+		users = concatUsers(users, page, ns)
+
 		// Generate content to file
-		fm, err := generate(ns, page, blocks)
+		fm, err := generate(ns, page, blocks, users)
 		if err != nil {
 			fmt.Println("❌ Generating blog post:", err)
 			continue

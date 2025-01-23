@@ -19,6 +19,8 @@ const (
 	authorProp       = "Author"
 	avatarProp       = "Avatar"
 	lastModProp      = "Lastmod"
+	createdByProp    = "CreatedBy"
+	lastEditedByProp = "LastEditedBy"
 	expiryDateProp   = "ExpiryDate"
 	publishDateProp  = "PublishDate"
 	showCommentsProp = "ShowComments"
@@ -66,46 +68,54 @@ var ColorMap = map[string]string{
 }
 
 type NotionProp struct {
-	Name             string
-	Title            string
-	Status           string
-	Categories       []string
-	Tags             []string
-	Position         string
-	FileName         string
-	Description      string
-	CreateAt         *time.Time
-	Author           string
-	Avatar           string
-	LastMod          time.Time
-	ExpiryDate       time.Time
-	PublishDate      time.Time
-	ShowComments     *bool
-	Slug             string
-	Types            string
-	IsSettingFile    bool
-	IsCustomNameFile bool
+	Name               string
+	Title              string
+	Status             string
+	Categories         []string
+	Tags               []string
+	Position           string
+	FileName           string
+	Description        string
+	CreateAt           *time.Time
+	Author             string
+	Avatar             string
+	CreatedBy          string
+	CreatedByAvatar    string
+	LastEditedBy       string
+	LastEditedByAvatar string
+	LastMod            time.Time
+	ExpiryDate         time.Time
+	PublishDate        time.Time
+	ShowComments       *bool
+	Slug               string
+	Types              string
+	IsSettingFile      bool
+	IsCustomNameFile   bool
 }
 
 func NewNotionProp(page notion.Page) (np *NotionProp) {
 	np = &NotionProp{
-		Name:        getTitle(page, nameProp),
-		Title:       getRichText(page, titleProp),
-		Status:      getSelect(page, statusProp),
-		Categories:  getMultiSelect(page, categoriesProp),
-		Tags:        getMultiSelect(page, TagsProp),
-		Position:    getSelect(page, PositionProp),
-		FileName:    getRichText(page, fileNameProp),
-		Description: getRichText(page, descriptionProp),
-		CreateAt:    getPropValue(page, createAtProp).CreatedTime,
-		//Author: author,
-		//Avatar: avatar,
-		LastMod:      getDate(page, lastModProp),
-		ExpiryDate:   getDate(page, expiryDateProp),
-		PublishDate:  getDate(page, publishDateProp),
-		ShowComments: getCheckbox(page, showCommentsProp),
-		Slug:         getRichText(page, slugProp),
-		Types:        getSelect(page, typeProp),
+		Name:               getTitle(page, nameProp),
+		Title:              getRichText(page, titleProp),
+		Status:             getSelect(page, statusProp),
+		Categories:         getMultiSelect(page, categoriesProp),
+		Tags:               getMultiSelect(page, TagsProp),
+		Position:           getSelect(page, PositionProp),
+		FileName:           getRichText(page, fileNameProp),
+		Description:        getRichText(page, descriptionProp),
+		CreateAt:           getPropValue(page, createAtProp).CreatedTime,
+		Author:             "",
+		Avatar:             "",
+		CreatedBy:          "",
+		CreatedByAvatar:    "",
+		LastEditedBy:       "",
+		LastEditedByAvatar: "",
+		LastMod:            getDate(page, lastModProp),
+		ExpiryDate:         getDate(page, expiryDateProp),
+		PublishDate:        getDate(page, publishDateProp),
+		ShowComments:       getCheckbox(page, showCommentsProp),
+		Slug:               getRichText(page, slugProp),
+		Types:              getSelect(page, typeProp),
 	}
 	// default blog position from hugo home path
 	if np.Position == "" {
