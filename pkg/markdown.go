@@ -328,6 +328,9 @@ func (tm *ToMarkdown) GenBlock(bType string, block MdBlock, addMoreTag bool, ski
 }
 
 func (tm *ToMarkdown) downloadFrontMatterImage(url string) string {
+	if len(url) == 0 {
+		return ""
+	}
 	image := &notion.FileBlock{
 		Type: "external",
 		File: nil,
