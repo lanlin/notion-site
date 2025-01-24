@@ -149,6 +149,11 @@ func (tm *ToMarkdown) injectFrontMatter(key string, property notion.DatabasePage
 	case *notion.User:
 		fmv = prop.Name
 		tm.injectAuthorAvatar(prop.AvatarURL)
+	case []notion.User:
+		if len(prop) > 0 {
+			fmv = prop[0].Name
+			tm.injectDisplayAuthorAvatar(prop[0].AvatarURL)
+		}
 	case *notion.File:
 		fmv = prop.File.URL
 	case []notion.File:
@@ -188,6 +193,10 @@ func (tm *ToMarkdown) injectFrontMatter(key string, property notion.DatabasePage
 
 func (tm *ToMarkdown) injectAuthorAvatar(avatar string) {
 	tm.FrontMatter["avatar"] = tm.downloadFrontMatterImage(avatar)
+}
+
+func (tm *ToMarkdown) injectDisplayAuthorAvatar(avatar string) {
+	tm.FrontMatter["DisplayAuthorAvatar"] = tm.downloadFrontMatterImage(avatar)
 }
 
 func (tm *ToMarkdown) injectFrontMatterCover(cover *notion.Cover) {

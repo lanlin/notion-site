@@ -105,7 +105,7 @@ func generate(ns *NotionSite, page notion.Page, blocks []notion.Block, users map
 
 	if !ns.currentPageProp.IsSetting() {
 		ns.tm.ContentTemplate = ns.config.Template
-		ns.tm.WithFrontMatter(ns.currentPage, users)
+		ns.tm.WithFrontMatter(ns.currentPage)
 	}
 	var err error
 	// save current io
